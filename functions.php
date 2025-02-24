@@ -130,7 +130,7 @@ function tfbTheme_logout_user_on_order_status_change( $order_id, $old_status, $n
         }
     }
 }
-add_action( 'woocommerce_order_status_changed', 'tfbTheme_logout_user_on_order_status_change', 10, 3 );
+//add_action( 'woocommerce_order_status_changed', 'tfbTheme_logout_user_on_order_status_change', 10, 3 );
 
 /**
  * Alternative approach using specific status hooks
