@@ -197,6 +197,34 @@ function tfbTheme_logout_on_specific_status( $order_id ) {
 // add_action( 'woocommerce_order_status_processing', 'tfbTheme_logout_on_specific_status', 10, 1 );
 // add_action( 'woocommerce_order_status_completed', 'tfbTheme_logout_on_specific_status', 10, 1 );
 
+add_action('template_redirect', 'force_guest_checkout_on_order_pay');
+
+function force_guest_checkout_on_order_pay() {
+    // Check if we're on the order-pay endpoint
+    if (is_wc_endpoint_url('order-pay')) {
+        // Get the order ID from the URL
+        global $wp;
+        $order_id = absint($wp->query_vars['order-pay']);
+        
+        // Make sure we have a valid order
+        if ($order_id > 0) {
+            // If user is logged in but we want to process as guest
+            if (is_user_logged_in()) {
+                // Store the order key
+                $order = wc_get_order($order_id);
+                if ($order) {
+                    $order_key = $order->get_order_key();
+                    // Log the user out
+                    wp_logout();
+                    // Redirect back to the order-pay page with the key
+                    wp_redirect(wc_get_endpoint_url('order-pay', $order_id, wc_get_checkout_url()) . '?pay_for_order=true&key=' . $order_key);
+                    exit;
+                }
+            }
+        }
+    }
+}
+
 /**
  * Load tfb theme scripts & styles.
  *
