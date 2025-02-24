@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('TFB_THEME_VERSION', '1.1.1');
+add_filter('woocommerce_order_pay_need_login', '__return_false');
 
 /**
  * Load tfb theme scripts & styles.
