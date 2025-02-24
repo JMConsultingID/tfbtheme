@@ -83,7 +83,10 @@ add_action( 'template_redirect', 'tfbTheme_log_in_user_from_payment_link', 10 );
 
 /**
  * Auto-logout user when their order status changes to on-hold, completed, or processing
- * Redirects to the thank you page after logout
+ * 
+ * This function hooks into the WooCommerce order status change system and logs out
+ * the current user if the order belongs to them and the status changes to one of
+ * the specified statuses.
  */
 function tfbTheme_logout_user_on_order_status_change( $order_id, $old_status, $new_status ) {
     // Only process specific status changes
@@ -114,43 +117,20 @@ function tfbTheme_logout_user_on_order_status_change( $order_id, $old_status, $n
     
     // Only log out if the order belongs to the current user
     if ( $current_user_id === $order_user_id ) {
-        // Store the thank you page URL before logging out
-        $thank_you_url = $order->get_checkout_order_received_url();
+        // You can add a session notice before logout if using AJAX
+        // wc_add_notice( __( 'Your payment has been processed. You have been logged out for security.', 'your-text-domain' ), 'notice' );
         
         // Log the user out
         wp_logout();
         
-        // Redirect to thank you page if not doing AJAX
+        // Optional: Redirect to homepage or thank you page
         if ( !wp_doing_ajax() ) {
-            wp_safe_redirect( $thank_you_url );
+            wp_safe_redirect( home_url() );
             exit;
-        } else {
-            // For AJAX requests, store the redirect URL in a transient
-            // with a unique key based on the user ID
-            set_transient( 'logout_redirect_' . $current_user_id, $thank_you_url, 60 ); // Expires in 60 seconds
         }
     }
 }
 add_action( 'woocommerce_order_status_changed', 'tfbTheme_logout_user_on_order_status_change', 10, 3 );
-
-/**
- * Handle AJAX redirects by checking for the transient on the next page load
- */
-function tfbTheme_check_for_redirect() {
-    if ( !is_user_logged_in() ) {
-        $user_id = get_current_user_id();
-        $redirect_url = get_transient( 'logout_redirect_' . $user_id );
-        
-        if ( $redirect_url ) {
-            // Delete the transient to prevent redirect loops
-            delete_transient( 'logout_redirect_' . $user_id );
-            
-            wp_safe_redirect( $redirect_url );
-            exit;
-        }
-    }
-}
-add_action( 'template_redirect', 'tfbTheme_check_for_redirect', 10 );
 
 /**
  * Alternative approach using specific status hooks
@@ -178,15 +158,12 @@ function tfbTheme_logout_on_specific_status( $order_id ) {
     
     // Only log out if the order belongs to the current user
     if ( $current_user_id === $order_user_id ) {
-        // Store the thank you page URL before logging out
-        $thank_you_url = $order->get_checkout_order_received_url();
-        
         // Log the user out
         wp_logout();
         
-        // Redirect to thank you page if not doing AJAX
+        // Optional: Redirect to homepage or thank you page
         if ( !wp_doing_ajax() ) {
-            wp_safe_redirect( $thank_you_url );
+            wp_safe_redirect( home_url() );
             exit;
         }
     }
