@@ -30,7 +30,7 @@ function tfb_log_in_user_from_payment_link(){
         $user      = get_user_by('id', $user_id);
 
         // Check if order key corresponds with order and the status of the payment is pending or failed
-        if ( wcs_get_objects_property( $order, 'order_key' ) === $order_key && $order->has_status( array( 'pending', 'failed' ) ) ) {
+        if ( wc_get_objects_property( $order, 'order_key' ) === $order_key && $order->has_status( array( 'pending', 'failed' ) ) ) {
             // For security reasons we want to limit this function to customers and subscribers
             if ( in_array( 'customer', $user->roles ) || in_array( 'subscriber', $user->roles ) ) {
                 // Log the user in
