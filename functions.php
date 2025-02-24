@@ -26,7 +26,9 @@ add_filter('woocommerce_order_pay_need_login', '__return_false');
 function tfbTheme_log_in_user_from_payment_link() {
     // Only proceed if not logged in and accessing a payment page
     if ( is_user_logged_in() || !isset( $_GET['pay_for_order'] ) || !isset( $_GET['key'] ) ) {
-        return;
+        //return;
+        // Log the user out
+        wp_logout();
     }
     
     global $wp;
